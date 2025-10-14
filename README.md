@@ -29,19 +29,6 @@ gcloud projects add-iam-policy-binding parking-mlops --member="serviceAccount:gi
 gcloud projects add-iam-policy-binding parking-mlops --member="serviceAccount:github-data-uploader@parking-mlops.iam.gserviceaccount.com" --role="roles/bigquery.dataEditor"
 
 
-## Generar clave JSON local
-gcloud iam service-accounts keys create github-key.json --iam-account=github-data-uploader@parking-mlops.iam.gserviceaccount.com
-
-Luego:
-
-Abre tu repositorio en GitHub.
-
-Ve a Settings → Secrets → Actions → New repository secret.
-
-Crea un secreto llamado GCP_CREDENTIALS.
-
-Pega el contenido del archivo github-key.json.
-
 ## Crear workload identity pool
 gcloud iam workload-identity-pools create "github-pool" --project="parking-mlops" --location="global" --display-name="GitHub Actions Pool"
 
@@ -58,3 +45,13 @@ este comando tiene un error entonces se hizo en la consola de gcp hay que agrega
 ### dar acceso al providar a la service account
 
 gcloud iam service-accounts add-iam-policy-binding github-data-uploader@parking-mlops.iam.gserviceaccount.com --project="parking-mlops" --role="roles/iam.workloadIdentityUser" --member="principalSet://iam.googleapis.com/projects/6182528745/locations/global/workloadIdentityPools/github-pool/attribute.repository/Hephaestus520/RETO4-MLOPS"
+
+### Crear un trigger de Pub/Sub sobre el bucket
+gcloud storage buckets notifications create gs://donostia-parking-data --topic=projects/parking-mlops/topics/gcs-new-files
+
+### Crear cloud function
+
+antes se debe haber creado un data set en bigquery llamado donostia_dataset
+para ejecutare este comando se debe estar en la carpeta src del repositorio
+
+gcloud functions deploy load_to_bigquery --runtime=python311 --trigger-topic=gcs-new-files --entry-point=load_to_bigquery --region=us-central1 --set-env-vars=DATASET=donostia_dataset,TABLE=parking_data
