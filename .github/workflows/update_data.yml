@@ -39,12 +39,6 @@ jobs:
         run: |
           bash ./data_extraction/update_data.sh 
 
-      - name: Debug secret length
-        run: |
-          echo "Checking secret length..."
-          echo "${{ secrets.GCP_CREDENTIALS }}" | wc -c
-          echo "${{secrets.GH_TOKEN}}" | wc -c
-
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
