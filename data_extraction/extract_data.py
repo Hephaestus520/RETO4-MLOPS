@@ -19,7 +19,13 @@ data = pd.json_normalize(
     )
 
 # Select important columns
-data = data.loc[:, important_columns]
+data = data.loc[:, important_columns].rename(
+    columns={
+        'properties.nombre': 'nombre',
+        'properties.libres': 'libres'
+    }
+)
+
 
 # Add timestamp  column
 data['timestamp'] = pd.Timestamp.now()
