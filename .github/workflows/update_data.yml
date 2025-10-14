@@ -38,7 +38,21 @@ jobs:
       - name: Update Data
         run: |
           bash ./data_extraction/update_data.sh 
-      
+
+      - name: Verify GCP credentials secret (safe check)
+        run: |
+          if [ -z "${{ secrets.GCP_CREDENTIALS }}" ]; then
+            echo "❌ Secret GCP_CREDENTIALS is NOT available!"
+            echo "👉 This usually happens if:"
+            echo "   - The workflow runs from a fork (secrets don’t pass)"
+            echo "   - The secret name is misspelled (should be exactly GCP_CREDENTIALS)"
+            echo "   - The secret was never added in GitHub Settings → Secrets → Actions"
+            exit 1
+          else
+            echo "✅ Secret GCP_CREDENTIALS is available and injected correctly!"
+            echo "🔒 (Content hidden for safety)"
+          fi
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
