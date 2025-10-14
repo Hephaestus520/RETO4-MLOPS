@@ -47,5 +47,5 @@ jobs:
       - name: Upload CSV to GCS
         uses: google-github-actions/upload-cloud-storage@v1
         with:
-          path: data_extraction/data.csv
+          path: data/data.csv
           destination: donostia-parking-data/raw/data.csv
