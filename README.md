@@ -7,11 +7,11 @@ gcloud projects create donostia-parking-mlops
 gcloud config set project donostia-parking-ml
 
 ## Habilitar servicios requeridos
-gcloud services enable storage.googleapis.com 
-gcloud service bigquery.googleapis.com 
-gcloud service cloudfunctions.googleapis.com 
-gcloud service pubsub.googleapis.com 
-gcloud service cloudbuild.googleapis.com 
+gcloud services enable storage.googleapis.com \
+gcloud service bigquery.googleapis.com \
+gcloud service cloudfunctions.googleapis.com \ 
+gcloud service pubsub.googleapis.com \
+gcloud service cloudbuild.googleapis.com \ 
 gcloud service artifactregistry.googleapis.com
 
 Algunos servicios necesitan activar el billing information entonces son mas faciles desde el dashboard 
