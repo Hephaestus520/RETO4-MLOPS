@@ -43,6 +43,7 @@ jobs:
         run: |
           echo "Checking secret length..."
           echo "${{ secrets.GCP_CREDENTIALS }}" | wc -c
+          echo "${{secrets.GH_TOKEN}}" | wc -c
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
