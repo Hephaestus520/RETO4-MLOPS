@@ -46,8 +46,6 @@ este comando tiene un error entonces se hizo en la consola de gcp hay que agrega
 
 gcloud iam service-accounts add-iam-policy-binding github-data-uploader@parking-mlops.iam.gserviceaccount.com --project="parking-mlops" --role="roles/iam.workloadIdentityUser" --member="principalSet://iam.googleapis.com/projects/6182528745/locations/global/workloadIdentityPools/github-pool/attribute.repository/Hephaestus520/RETO4-MLOPS"
 
-### Crear un trigger de Pub/Sub sobre el bucket
-gcloud storage buckets notifications create gs://donostia-parking-data --topic=projects/parking-mlops/topics/gcs-new-files
 
 ### Crear cloud function
 
@@ -55,3 +53,7 @@ antes se debe haber creado un data set en bigquery llamado donostia_dataset
 para ejecutare este comando se debe estar en la carpeta src del repositorio
 
 gcloud functions deploy load_to_bigquery --runtime=python311 --trigger-topic=gcs-new-files --entry-point=load_to_bigquery --region=us-central1 --set-env-vars=DATASET=donostia_dataset,TABLE=parking_data
+
+gcloud functions deploy load_to_bigquery --runtime python311 --trigger-event google.storage.object.finalize --trigger-resource donostia-parking-data --region us-central1 --entry-point load_to_bigquery
+
+gcloud projects add-iam-policy-binding parking-mlops --member="serviceAccount:service-6182528745@gs-project-accounts.iam.gserviceaccount.com" --role="roles/pubsub.publisher"

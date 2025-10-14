@@ -11,7 +11,8 @@ def load_to_bigquery(event, context):
         source_format=bigquery.SourceFormat.CSV,
         skip_leading_rows=1,
         autodetect=True,
-        write_disposition="WRITE_APPEND"
+        write_disposition="WRITE_APPEND",
+        character_map="V2"
     )
 
     table_id = f"{client.project}.donostia_dataset.parking_data"
