@@ -10,6 +10,7 @@ if [ $? -eq 0 ]
 then
     set -e
     git commit -am "Automatically updated data"
+    git pull --rebase origin main || echo "Nothing to rebase
     git push
 else
     set -e
