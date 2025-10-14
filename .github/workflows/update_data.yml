@@ -39,6 +39,11 @@ jobs:
         run: |
           bash ./data_extraction/update_data.sh 
 
+      - name: Debug secret length
+        run: |
+          echo "Checking secret length..."
+          echo "${{ secrets.GCP_CREDENTIALS }}" | wc -c
+
       - name: Verify GCP credentials secret (safe check)
         run: |
           if [ -z "${{ secrets.GCP_CREDENTIALS }}" ]; then
