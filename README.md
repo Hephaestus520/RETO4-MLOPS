@@ -52,8 +52,66 @@ gcloud iam service-accounts add-iam-policy-binding github-data-uploader@parking-
 antes se debe haber creado un data set en bigquery llamado donostia_dataset
 para ejecutare este comando se debe estar en la carpeta src del repositorio
 
-gcloud functions deploy load_to_bigquery --runtime=python311 --trigger-topic=gcs-new-files --entry-point=load_to_bigquery --region=us-central1 --set-env-vars=DATASET=donostia_dataset,TABLE=parking_data
+gcloud projects add-iam-policy-binding parking-mlops --member="serviceAccount:service-6182528745@gs-project-accounts.iam.gserviceaccount.com" --role="roles/pubsub.publisher"
 
 gcloud functions deploy load_to_bigquery --runtime python311 --trigger-event google.storage.object.finalize --trigger-resource donostia-parking-data --region us-central1 --entry-point load_to_bigquery
 
-gcloud projects add-iam-policy-binding parking-mlops --member="serviceAccount:service-6182528745@gs-project-accounts.iam.gserviceaccount.com" --role="roles/pubsub.publisher"
+
+## Modelo y predicciones en bigquery
+
+CREATE OR REPLACE MODEL `donostia_dataset.parking_forecast`
+OPTIONS(
+  model_type = 'linear_reg',
+  input_label_cols = ['libres']
+) AS
+SELECT
+  nombre,
+  EXTRACT(HOUR FROM timestamp) AS hora,
+  EXTRACT(DAYOFWEEK FROM timestamp) AS dia_semana,
+  libres
+FROM
+  `donostia_dataset.parking_data`;
+
+este fue el codigo para iniciar el modelo en una sentencia SQL en bigquery 
+
+### Este es un ejemplo de una consulta para una preddiccion 
+
+SELECT
+  nombre,
+  hora,
+  dia_semana,
+  predicted_libres
+FROM
+  ML.PREDICT(MODEL `donostia_dataset.parking_forecast`,
+    (
+      SELECT
+        nombre,
+        EXTRACT(HOUR FROM timestamp) AS hora,
+        EXTRACT(DAYOFWEEK FROM timestamp) AS dia_semana
+      FROM
+        `donostia_dataset.parking_data`
+      WHERE timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1 HOUR)
+    )
+  );
+
+### Creacion de tabla de predicciones en bigquery
+
+CREATE OR REPLACE TABLE `donostia_dataset.parking_predictions` AS
+SELECT
+  nombre,
+  hora,
+  dia_semana,
+  predicted_libres,
+  CURRENT_TIMESTAMP() AS generated_at
+FROM
+  ML.PREDICT(MODEL `donostia_dataset.parking_forecast`,
+    (
+      SELECT
+        nombre,
+        EXTRACT(HOUR FROM timestamp) AS hora,
+        EXTRACT(DAYOFWEEK FROM timestamp) AS dia_semana
+      FROM
+        `donostia_dataset.parking_data`
+      WHERE timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1 HOUR)
+    )
+  );
