@@ -39,9 +39,13 @@ jobs:
         run: |
           bash ./data_extraction/update_data.sh 
       
-      - name: Upload CSV to Cloud Storage
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+            credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Upload CSV to GCS
         uses: google-github-actions/upload-cloud-storage@v1
         with:
-          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-          path: data/data.csv
-          destination: donostia-parking-data/raw/
+          path: data_extraction/data.csv
+          destination: donostia-parking-data/raw/data.csv
