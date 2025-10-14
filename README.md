@@ -41,3 +41,20 @@ Ve a Settings → Secrets → Actions → New repository secret.
 Crea un secreto llamado GCP_CREDENTIALS.
 
 Pega el contenido del archivo github-key.json.
+
+## Crear workload identity pool
+gcloud iam workload-identity-pools create "github-pool" --project="parking-mlops" --location="global" --display-name="GitHub Actions Pool"
+
+### Obtén el ID del pool:
+
+gcloud iam workload-identity-pools describe "github-pool"  --project="parking-mlops" --location="global" --format="value(name)"
+
+### Provider para github
+
+gcloud iam workload-identity-pools providers create-oidc "github-provider" --project="parking-mlops" --location="global" --workload-identity-pool="github-pool" --display-name="GitHub Provider"   --issuer-uri="https://token.actions.githubusercontent.com" --attribute-mapping="google.subject=assertion.sub"
+
+este comando tiene un error entonces se hizo en la consola de gcp hay que agregarle una condicion que sea assertion.repository="<Nombre de usuario>/<RETO4-MLOPS>"
+
+### dar acceso al providar a la service account
+
+gcloud iam service-accounts add-iam-policy-binding github-data-uploader@parking-mlops.iam.gserviceaccount.com --project="parking-mlops" --role="roles/iam.workloadIdentityUser" --member="principalSet://iam.googleapis.com/projects/6182528745/locations/global/workloadIdentityPools/github-pool/attribute.repository/Hephaestus520/RETO4-MLOPS"
