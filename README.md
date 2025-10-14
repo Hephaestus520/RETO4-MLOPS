@@ -31,3 +31,13 @@ gcloud projects add-iam-policy-binding parking-mlops --member="serviceAccount:gi
 
 ## Generar clave JSON local
 gcloud iam service-accounts keys create github-key.json --iam-account=github-data-uploader@parking-mlops.iam.gserviceaccount.com
+
+Luego:
+
+Abre tu repositorio en GitHub.
+
+Ve a Settings → Secrets → Actions → New repository secret.
+
+Crea un secreto llamado GCP_CREDENTIALS.
+
+Pega el contenido del archivo github-key.json.
